@@ -2,7 +2,11 @@
 
 conda
 ```bash
-conda create -n vit python=3.10
-conda activate vit
-pip install torch==2.5.0 torchvision==0.20.0
+conda env create -f environment.yml
+```
+
+## training
+The dataset should be placed in the `./data` directory, and you can also modify the dataset path in `./configs/vit.yaml`.
+```bash
+bash run_train.sh
 ```
