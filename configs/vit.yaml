@@ -1,0 +1,32 @@
+device: 'cuda'
+train:
+  batch_size: 32
+  epochs: 100
+  num_workers: 1
+  optimizer:
+    type: 'AdamW'
+    params:
+      lr: 0.001
+      weight_decay: 0.0001
+  loss:
+    type: 'CE'
+  save_interval: 50
+  val_interval: 10
+test:
+  batch_size: 64
+  num_workers: 1
+model:
+  type: 'vit'
+  input_size: [224, 224]
+  num_classes: 10
+  pretrained: True
+  dropout_rate: 0.1
+seed: 486
+data:
+  train_images_path: './data/train_images.npy'
+  train_labels_path: './data/train_labels.npy'
+  val_images_path: './data/val_images.npy'
+  val_labels_path: './data/val_labels.npy'
+  test_images_path: './data/test_images.npy'
+  filter: True
+output_dir: '.'
