@@ -1,5 +1,5 @@
 # /data
-# *.npy
+*.npy
 *.docx
 *.pdf
 *.pyc
