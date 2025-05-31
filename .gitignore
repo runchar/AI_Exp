@@ -3,3 +3,5 @@
 *.docx
 *.pdf
 *.pyc
+.DS_Store
+*.pth

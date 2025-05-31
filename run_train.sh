@@ -1,4 +1,4 @@
 python main.py \
-    --config configs/vit.yaml \
+    --config configs/resnet_filter.yaml \
     --output_dir output \
     --mode train 

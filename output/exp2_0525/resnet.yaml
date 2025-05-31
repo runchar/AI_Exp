@@ -10,13 +10,13 @@ train:
       weight_decay: 0.0001
   loss:
     type: 'CE'
-  save_interval: 5
+  save_interval: 10
   val_interval: 1
 test:
   batch_size: 64
   num_workers: 1
 model:
-  type: 'vit'
+  type: 'resnet'
   input_size: [32, 32]
   num_classes: 10
   pretrained: True
@@ -30,3 +30,4 @@ data:
   test_images_path: './data/test_images.npy'
   filter: False
 output_dir: '.'
+checkpoint_dir: ''
