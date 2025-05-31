@@ -59,8 +59,8 @@ class MyDataset(Dataset):
         if self.cfg['data']['filter']:
             img = filter_data(img)
 
-        angle = np.random.choice([0, 90, 180, 270])
-        img = np.rot90(img, k=angle // 90)
+        # angle = np.random.choice([0, 90, 180, 270])
+        # img = np.rot90(img, k=angle // 90)
 
         img = Image.fromarray(img.astype('uint8'))
         img = img.resize((224, 224))

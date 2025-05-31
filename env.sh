@@ -1,0 +1,2 @@
+conda create --name exp --file environment.yml -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/ -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/ -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r/ 
+conda activate exp    

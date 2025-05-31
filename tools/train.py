@@ -7,6 +7,7 @@ from utils import save_checkpoint
 from tqdm import tqdm
 import numpy as np
 import torch
+import pandas as pd
 
 def eval_epoch(cfg ,model, dataloader):
     model.eval()
@@ -31,7 +32,8 @@ def train_epoch(cfg ,model, dataloader, optimizer, loss_fn):
     device = cfg['device']
     total_loss = 0
 
-    for images, labels in tqdm(dataloader, desc="train", leave=False):
+    # for images, labels in tqdm(dataloader, desc="train", leave=False):
+    for images, labels in dataloader:
         images = images.to(device)
         labels = labels.to(device)
         optimizer.zero_grad()
@@ -50,6 +52,8 @@ def train(cfg):
     optimizer = construct_optimizer(cfg,model)
     loss_fn = construct_loss(cfg)
     start_epoch = 0
+
+    eval_results = []
 
     if cfg['train']['checkpoint_dir']:
         checkpoint = torch.load(cfg['train']['checkpoint_dir'])
@@ -86,5 +90,8 @@ def train(cfg):
                 best_acc = acc
                 save_checkpoint(cfg, model, optimizer, epoch, "best")
                 print(f"save the best model")
+            eval_results.append(acc)
                 
         print(f"Epoch [{epoch + 1}/{cfg['train']['epochs']}] train loss: {train_loss:.4f}  best acc: {best_acc:.4f}  current acc: {acc:.4f}")
+
+    pd.DataFrame(eval_results, columns=['accuracy']).to_csv(cfg['output_dir'], index=False)

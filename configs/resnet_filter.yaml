@@ -1,7 +1,7 @@
 device: 'cuda'
 train:
   batch_size: 32
-  epochs: 100
+  epochs: 500
   num_workers: 1
   optimizer:
     type: 'AdamW'
