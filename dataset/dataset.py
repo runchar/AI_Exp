@@ -68,4 +68,7 @@ class MyDataset(Dataset):
 
         img = torch.from_numpy(img).permute(2, 0, 1).float() / 255.0  # (H,W,C) -> (C,H,W)
 
-        return img, self.labels[idx]
+        if self.labels is not None:
+            return img, self.labels[idx]
+        else:
+            return img, 0

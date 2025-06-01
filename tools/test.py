@@ -32,5 +32,6 @@ def test(cfg):
             print(f'Output shape: {outputs.shape}')
             print(f'Predictions: {preds}')
     preds = np.array(preds)
-    np.save(cfg['output_dir'], preds)
+    result_file_path = f"{cfg['output_dir']}/final_y.npy"
+    np.save(result_file_path, preds)
 
