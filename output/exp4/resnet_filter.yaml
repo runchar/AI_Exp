@@ -1,8 +1,8 @@
 device: 'cuda'
 train:
-  batch_size: 32
-  epochs: 100
-  num_workers: 1
+  batch_size: 64
+  epochs: 300
+  num_workers: 1`
   optimizer:
     type: 'AdamW'
     params:
@@ -12,16 +12,17 @@ train:
     type: 'CE'
   save_interval: 5
   val_interval: 1
-  checkpoint_dir: './output/exp1_0525/checkpoint_best_65.pth'
+  checkpoint_dir: 
 test:
   batch_size: 64
   num_workers: 1
+  checkpoint_dir: './output/exp3_0601/checkpoint_best.pth'
 model:
-  type: 'vit'
+  type: 'resnet'
   input_size: [32, 32]
   num_classes: 10
   pretrained: True
-  dropout_rate: 0.1
+  dropout_rate: 0.01
 seed: 486
 data:
   train_images_path: './data/train_images.npy'
@@ -29,5 +30,5 @@ data:
   val_images_path: './data/val_images.npy'
   val_labels_path: './data/val_labels.npy'
   test_images_path: './data/test_images.npy'
-  filter: False
+  filter: True
 output_dir: '.'

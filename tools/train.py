@@ -15,6 +15,9 @@ def eval_epoch(cfg ,model, dataloader):
     total_correct = 0
     total_samples = 0
 
+    predicteds = []
+    labels_list = []
+
     with torch.no_grad():
         for images, labels in tqdm(dataloader, desc="eval", leave=False):
             images = images.to(device)
@@ -22,7 +25,12 @@ def eval_epoch(cfg ,model, dataloader):
             outputs = model(images)
             _, predicted = torch.max(outputs, 1)
             total_correct += sum(predicted == labels).item()
+            predicteds.extend(predicted.cpu().numpy())
+            labels_list.extend(labels.cpu().numpy())
             total_samples += labels.size(0)
+
+    np.save(cfg['output_dir'] + '/predicted.npy', np.array(predicteds))
+    np.save(cfg['output_dir'] + '/labels.npy', np.array(labels_list))
 
     acc = total_correct / total_samples
     return acc
@@ -32,8 +40,8 @@ def train_epoch(cfg ,model, dataloader, optimizer, loss_fn):
     device = cfg['device']
     total_loss = 0
 
-    # for images, labels in tqdm(dataloader, desc="train", leave=False):
-    for images, labels in dataloader:
+    for images, labels in tqdm(dataloader, desc="train", leave=False):
+    # for images, labels in dataloader:
         images = images.to(device)
         labels = labels.to(device)
         optimizer.zero_grad()
@@ -79,7 +87,6 @@ def train(cfg):
 
     for epoch in range(start_epoch, cfg['train']['epochs']):
         train_loss = train_epoch(cfg, model, train_dataloader, optimizer, loss_fn)
-
 
         if (epoch + 1) % cfg['train']['save_interval'] == 0:
             save_checkpoint(cfg, model, optimizer, epoch, "last")

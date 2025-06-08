@@ -6,11 +6,8 @@ import torch
 import os
 import matplotlib.pyplot as plt
 from time import sleep
+import random
 
-
-# 新增：导入yolact++相关
-# from yolact import Yolact
-# from utils.augmentations import FastBaseTransform
 
 def load_data(images_path, labels_path=None):
     images = np.load(images_path)
@@ -19,10 +16,13 @@ def load_data(images_path, labels_path=None):
         return images, labels
     return images, None
 
-def sigmoid_contrast(img, gain=50, cutoff=0.95):
+def sigmoid_contrast(img, gain=75, cutoff=0.95):
     img = img.astype(np.float32) / 255.0
     img = 1 / (1 + np.exp(-gain * (img - cutoff)))
     img = (img * 255).clip(0, 255).astype(np.uint8)
+
+    img = np.mean(img, axis=2, keepdims=True).repeat(3, axis=2)
+
     return img
 
 def filter_data(data):
@@ -47,6 +47,7 @@ def filter_data(data):
 class MyDataset(Dataset):
     def __init__(self, cfg, images_path, labels_path=None):
         self.cfg = cfg
+        self.images_path = images_path
         self.data, self.labels = load_data(images_path, labels_path)
         if self.labels is not None:
             self.labels = self.labels.astype(np.int64)
@@ -56,19 +57,27 @@ class MyDataset(Dataset):
 
     def __getitem__(self, idx):
         img = self.data[idx]
+
+        img = img.mean(axis=2, keepdims=True).repeat(3, axis=2) 
+
         if self.cfg['data']['filter']:
             img = filter_data(img)
 
-        # angle = np.random.choice([0, 90, 180, 270])
-        # img = np.rot90(img, k=angle // 90)
-
         img = Image.fromarray(img.astype('uint8'))
-        img = img.resize((224, 224))
+        if self.cfg['model']['type'] != 'cnn':
+            img = img.resize((224, 224))
         img = np.array(img)
 
         img = torch.from_numpy(img).permute(2, 0, 1).float() / 255.0  # (H,W,C) -> (C,H,W)
 
+        img = img.mean(axis=0, keepdims=True) 
+
         if self.labels is not None:
+            if self.labels[idx] != 6 and self.labels[idx] != 9 and "train_images" in self.images_path:
+                if random.randint(0, 2) == 0:
+                    angle = random.choice([90, 180, 270])
+                    img = torch.rot90(img, k=angle // 90, dims=[1, 2])
+
             return img, self.labels[idx]
         else:
             return img, 0

@@ -7,6 +7,7 @@ from utils import save_checkpoint
 from tqdm import tqdm
 import numpy as np
 import torch
+import pandas as pd
 
 def test(cfg):
     device = cfg['device']
@@ -28,10 +29,21 @@ def test(cfg):
         for images, _ in tqdm(dataloader):
             images = images.to(device)
             outputs = model(images)
+            
             preds.extend(outputs.argmax(dim=1).cpu().numpy())
-            print(f'Output shape: {outputs.shape}')
-            print(f'Predictions: {preds}')
+            import matplotlib.pyplot as plt
+
+            # for i in range(images.size(0)):
+            #     img = images[i].cpu().permute(1, 2, 0).numpy()
+            #     plt.imshow((img * 255).astype(np.uint8))
+            #     plt.title(f'Predicted: {outputs[i].argmax().item()}')
+            #     plt.axis('off')
+            #     plt.show()
+            # print(f'Output shape: {outputs.shape}')
+            # print(f'Predictions: {preds}')
     preds = np.array(preds)
+    csv_file_path = f"{cfg['output_dir']}/final_y.csv"
+    pd.DataFrame(preds, columns=['prediction']).to_csv(csv_file_path, index=False)
     result_file_path = f"{cfg['output_dir']}/final_y.npy"
     np.save(result_file_path, preds)
 

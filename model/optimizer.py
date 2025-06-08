@@ -11,7 +11,6 @@ def construct_optimizer(cfg, model):
         optimizer = SGD(
             model.parameters(),
             lr=cfg['train']['optimizer']['params']['lr'],
-            momentum=cfg['train']['optimizer']['params']['momentum'],
             weight_decay=cfg['train']['optimizer']['params']['weight_decay']
         )
     else:
