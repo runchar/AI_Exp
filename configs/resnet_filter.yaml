@@ -1,7 +1,7 @@
 device: 'cuda'
 train:
   batch_size: 32
-  epochs: 120
+  epochs: 100
   num_workers: 1`
   optimizer:
     type: 'AdamW'
@@ -16,7 +16,7 @@ train:
 test:
   batch_size: 64
   num_workers: 1
-  checkpoint_dir: './output/exp4/checkpoint_best.pth'
+  checkpoint_dir: './output/checkpoint_best.pth'
 model:
   type: 'resnet'
   input_size: [32, 32]

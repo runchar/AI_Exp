@@ -8,6 +8,8 @@ from tqdm import tqdm
 import numpy as np
 import torch
 import pandas as pd
+import os
+from PIL import Image
 
 def eval_epoch(cfg ,model, dataloader):
     model.eval()
@@ -25,6 +27,28 @@ def eval_epoch(cfg ,model, dataloader):
             outputs = model(images)
             _, predicted = torch.max(outputs, 1)
             total_correct += sum(predicted == labels).item()
+            
+            # Save misclassified images and their labels
+            misclassified = predicted != labels
+            mis_images = images[misclassified].cpu()
+            mis_labels = labels[misclassified].cpu().numpy()
+            mis_preds = predicted[misclassified].cpu().numpy()
+            for idx in range(mis_images.size(0)):
+                img = mis_images[idx]
+                # If image has 1 channel, squeeze; if 3, permute to HWC
+                if img.size(0) == 1:
+                    img_to_save = img.squeeze(0).numpy()
+                else:
+                    img_to_save = img.permute(1, 2, 0).numpy()
+                # Normalize to 0-255 and convert to uint8
+                img_to_save = (img_to_save - img_to_save.min()) / (img_to_save.max() - img_to_save.min() + 1e-5)
+                img_to_save = (img_to_save * 255).astype(np.uint8)
+                # Save image with label and predicted in filename
+                save_dir = os.path.join(cfg['output_dir'], 'misclassified')
+                os.makedirs(save_dir, exist_ok=True)
+                save_path = os.path.join(save_dir, f"img_{len(os.listdir(save_dir))}_label_{mis_labels[idx]}_pred_{mis_preds[idx]}.png")
+                Image.fromarray(img_to_save).save(save_path)
+
             predicteds.extend(predicted.cpu().numpy())
             labels_list.extend(labels.cpu().numpy())
             total_samples += labels.size(0)

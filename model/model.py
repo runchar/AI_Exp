@@ -103,8 +103,7 @@ def construct_model(cfg):
         model = models.vit_b_16(pretrained=pretrained)
         model = nn.Sequential(model, adapter)
     elif cfg['model']['type'] == 'resnet':
-        model = models.resnet18(pretrained=pretrained)
-        model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)  
+        model = models.resnet50(pretrained=pretrained)
         model.fc = nn.Linear(model.fc.in_features, num_classes)
     elif cfg['model']['type'] == 'cnn':
         model = CNN(num_classes, dropout_rate)

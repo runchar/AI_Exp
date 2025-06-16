@@ -16,7 +16,7 @@ def load_data(images_path, labels_path=None):
         return images, labels
     return images, None
 
-def sigmoid_contrast(img, gain=75, cutoff=0.95):
+def sigmoid_contrast(img, gain=75, cutoff=0.90):
     img = img.astype(np.float32) / 255.0
     img = 1 / (1 + np.exp(-gain * (img - cutoff)))
     img = (img * 255).clip(0, 255).astype(np.uint8)
@@ -37,6 +37,7 @@ def filter_data(data):
     #     axs[1].axis('off')
     #     plt.show()
     #     sleep(1000000)
+    data = data.mean(axis=2, keepdims=True).repeat(3, axis=2) 
 
     if isinstance(data, np.ndarray):
         return sigmoid_contrast(data)
@@ -57,27 +58,40 @@ class MyDataset(Dataset):
 
     def __getitem__(self, idx):
         img = self.data[idx]
+        if "train_images" in self.images_path and self.labels[idx] != 6 and self.labels[idx] != 9:
+                if random.random() < 1/3:
+                    angle = random.choice([90, 180, 270])
+                    img = np.rot90(img, k=angle // 90)
 
-        img = img.mean(axis=2, keepdims=True).repeat(3, axis=2) 
+
+
 
         if self.cfg['data']['filter']:
-            img = filter_data(img)
+            imgf = filter_data(img)
 
-        img = Image.fromarray(img.astype('uint8'))
-        if self.cfg['model']['type'] != 'cnn':
+        img = imgf + img  # 使用滤波后的图像
+
+        img = img.astype(np.uint8)  # 确保是 uint8 类型
+
+        img = Image.fromarray(img)
+        if self.cfg['model']['type'] == 'cnn':
+            img = img.resize((32, 32))
+        else:
             img = img.resize((224, 224))
-        img = np.array(img)
 
-        img = torch.from_numpy(img).permute(2, 0, 1).float() / 255.0  # (H,W,C) -> (C,H,W)
+        img = np.array(img)  
 
-        img = img.mean(axis=0, keepdims=True) 
+        img = img.astype(np.float32) / 255.0
+
+        img = torch.from_numpy(img).permute(2, 0, 1).float() 
+
+
+        # plt.imshow(img.permute(1, 2, 0).cpu().numpy())
+        # plt.title(f"Index: {idx}")
+        # plt.axis('off')
+        # plt.show()
 
         if self.labels is not None:
-            if self.labels[idx] != 6 and self.labels[idx] != 9 and "train_images" in self.images_path:
-                if random.randint(0, 2) == 0:
-                    angle = random.choice([90, 180, 270])
-                    img = torch.rot90(img, k=angle // 90, dims=[1, 2])
-
             return img, self.labels[idx]
         else:
             return img, 0
